@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block section_main %}
+    <main class="p-1">
+        <section class="section">
+            <form id="form_dados_empenho" class="box">
+                <div class="columns is-multiline">
+                    <div class="column is-half-desktop">
+                        <label class="label">Unidade Gestora - UG</label>
+                        <input class="input" required id="ug" type="text" minlength="6" maxlength="6" placeholder="Digite o código da UG - ex.: 158953">
+                    </div>
+                    <div class="column is-half-desktop">
+                        <label class="label">Órgão Orçamentário</label>
+                        <input class="input" required id="orgao" type="text" minlength="5" maxlength="5" placeholder="Digite o código do Órgão - ex.: 26405">
+                    </div>
+                    <div class="column">
+                        <label class="label">Empenho</label>
+                        <input class="input" required id="empenhoConsultar" type="text" maxlength="12" minlength="12" placeholder="Digite o Empenho - ex.: 2022NE000001">
+                    </div>
+
+                </div>
+                <div class="field has-text-centered">
+                    <button id="pesquisarEmpenho" type="submit" class="button is-info">Pesquisar Empenho</button>
+                </div>
+            </form>
+        </section>
+        <section class="section pt-0">
+            <table id="tabelaEmpenho" class="is-hidden table is-hoverable is-striped is-fullwidth">
+                <thead>
+                    <tr class="has-background-info-dark">
+                        <th class="has-text-white">Número do Empenho</th>
+                        <th class="has-text-white">Favorecido do Empenho</th>
+                        <th class="has-text-white">CNPJ do Favorecido</th>
+                        <th class="has-text-white">Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody id="dadosConsultados">
+                </tbody>
+            </table>
+            <p id="detalharItens" class="has-text-centered is-hidden">
+                <button class="button is-info">
+                    Detalhar Itens
+                </button>
+            </p>
+            
+            
+            
+        </section>
+        
+        <footer class="card-footer-item has-background-grey-lighter">
+            <p class="has-text-centered has-text-info-dark">
+                2022 - Dados do Portal da Transparência<br>Origem: Tesouro Gerencial - Atualizando até 
+                {% if dia %}
+                    {{dia.dia}}
+                {% else %}
+                    <em>Sem Informação</em>
+                {% endif %}
+            </p>
+            
+        </footer>
+    </main>
+        <div id="modal-detalhe-empenho" class="modal">
+            <div id="modalBack" class="modal-background"></div>
+            
+            <div class="modal-content">
+                <div class="box">
+                    <p>Detalhamento de Itens de Empenho</p>
+                    <div id="detalhesItensEmpenho">
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock section_main %}
+
+{% block script %}
+
+<script>
+    document.getElementById("form_dados_empenho").onsubmit = (e) => {
+        e.preventDefault()
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            response = this.responseText.split("<ARRAY>")
+            document.getElementById("dadosConsultados").innerHTML = response[0];
+            tableItens = response[1]
+            tableItens = tableItens.replace('dataframe','table is-hoverable is-bordered is-striped has-text-centered');
+            tableItens = tableItens.replaceAll('<th>',"<th class='has-text-white has-background-info-dark has-text-centered'>")
+            document.getElementById("detalhesItensEmpenho").innerHTML = tableItens
+            document.getElementById("detalharItens").classList.remove('is-hidden');
+            document.getElementById("tabelaEmpenho").classList.remove('is-hidden');
+        }
+        xhttp.open("POST", "/empenho");
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send(`ug=${e.target.ug.value}&orgao=${e.target.orgao.value}&empenhoConsultar=${e.target.empenhoConsultar.value}`);
+    }
+
+    document.getElementById('modal-detalhe-empenho').classList.remove('is-active');
+      
+    document.querySelector('#detalharItens > button').onclick = () => {
+        document.getElementById('modal-detalhe-empenho').classList.add('is-active');
+    }
+    
+    document.getElementById('modalBack').onclick = () => {
+        document.getElementById('modal-detalhe-empenho').classList.remove('is-active');
+    }
+
+      
+    // Add a keyboard event to close all modals
+    document.addEventListener('keydown', (event) => {
+        const e = event || window.event;
+    
+        if (e.keyCode === 27) { // Escape key
+        document.getElementById('modal-detalhe-empenho').classList.remove('is-active');
+        }
+    });
+</script>
+
+{% endblock script %}

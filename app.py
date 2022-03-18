@@ -45,7 +45,7 @@ def consultarDiaAtualizado():
         return {"erro": r.status_code}
 
 
-def consultarEmpenho(ug,orgao,empenho):
+def consultarEmpenho(ug, orgao, empenho):
     url = f'https://www.portaldatransparencia.gov.br/despesas/empenho/{ug}{orgao}{empenho}'
     r = requests.get(url)
     if r.status_code == 200:
@@ -56,6 +56,8 @@ def consultarEmpenho(ug,orgao,empenho):
             favorecidoEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-9 > span").text.strip()
             cnpjEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-3 > span > a").text.strip()
             listaItensEmpenho = pd.read_csv(f"https://www.portaltransparencia.gov.br/despesas/documento/empenho/detalhamento/baixar?direcaoOrdenacao=asc&codigo={ug}{orgao}{empenho}&totalDeRegistrosDaTabela=15",sep=";")
+            #listaDocumentosRelacionados
+            cnpjEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-3 > span > a").text.strip()
             return {
                 "empenho": empenhoRetornado,
                 "valor": valorEmpenho,
@@ -63,6 +65,18 @@ def consultarEmpenho(ug,orgao,empenho):
                 "cnpj": cnpjEmpenho,
                 "listaItens": listaItensEmpenho.to_html(columns=['Item', 'Código subelemento', 'Subelemento', 'Valor atual'],justify='left', index=False)
             }
+        except Exception as erro:
+            return {"erro": erro}
+    else:
+        return {"erro": r.status_code}
+
+def consultarNotaSistema(ug, orgao, notaSistema):
+    url = f'https://www.portaltransparencia.gov.br/despesas/liquidacao/{ug}{orgao}{notaSistema}'
+    r = requests.get(url)
+    if r.status_code == 200:
+        try:
+            soup = BeautifulSoup(r.text, "html.parser")
+            valorNotaSistema = 0
         except Exception as erro:
             return {"erro": erro}
     else:

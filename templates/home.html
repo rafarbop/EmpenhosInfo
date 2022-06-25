@@ -27,22 +27,40 @@
             <table id="tabelaEmpenho" class="is-hidden table is-hoverable is-striped is-fullwidth">
                 <thead>
                     <tr class="has-background-info-dark">
+                        <th colspan="4" class="is-size-5 has-text-centered has-text-white">Empenho Pesquisado</th>
+                    </tr>
+                    <tr class="has-background-info-dark">
                         <th class="has-text-white">Número do Empenho</th>
                         <th class="has-text-white">Favorecido do Empenho</th>
                         <th class="has-text-white">CNPJ do Favorecido</th>
                         <th class="has-text-white">Valor Total</th>
                     </tr>
                 </thead>
-                <tbody id="dadosConsultados">
+                <tbody id="dadosEmpenhosConsultados">
                 </tbody>
             </table>
-            <p id="detalharItens" class="has-text-centered is-hidden">
+            <section id="detalharItens" class="has-text-centered is-hidden my-2">
                 <button class="button is-info">
                     Detalhar Itens
                 </button>
-            </p>
+            </section>
             
             
+            <table id="tabelaPagamentos" class="is-hidden table is-hoverable is-striped is-fullwidth">
+                <thead>
+                    <tr class="has-background-info-dark">
+                        <th colspan="4" class="is-size-5 has-text-centered has-text-white">Pagamentos Relacionados ao Empenho Acima</th>
+                    </tr>
+                    <tr class="has-background-info-dark">
+                        <th class="has-text-white">Documento Pagamento - OB</th>
+                        <th class="has-text-white">Favorecido do Pagamento</th>
+                        <th class="has-text-white">Data</th>
+                        <th class="has-text-white">Valor Pago</th>
+                    </tr>
+                </thead>
+                <tbody id="dadosPagamentosConsultados">
+                </tbody>
+            </table>
             
         </section>
         
@@ -79,13 +97,29 @@
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function() {
             response = this.responseText.split("<ARRAY>")
-            document.getElementById("dadosConsultados").innerHTML = response[0];
+            document.getElementById("dadosEmpenhosConsultados").innerHTML = response[0];
             tableItens = response[1]
-            tableItens = tableItens.replace('dataframe','table is-hoverable is-bordered is-striped has-text-centered');
-            tableItens = tableItens.replaceAll('<th>',"<th class='has-text-white has-background-info-dark has-text-centered'>")
+            // tableItens = tableItens.replace('dataframe','table is-hoverable is-bordered is-striped has-text-centered');
+            // tableItens = tableItens.replaceAll('<th>',"<th class='has-text-white has-background-info-dark has-text-centered'>")
             document.getElementById("detalhesItensEmpenho").innerHTML = tableItens
+            
+            tableBodyPagamentos = document.getElementById('dadosPagamentosConsultados')
+            listaPagamentos = JSON.parse(response[2].replaceAll("'",'"'))
+            console.log("lista pagamento")
+            console.log(listaPagamentos)
+            if (listaPagamentos){
+                for (var pagamento of listaPagamentos){
+                    TRelementHTML = document.createElement('tr')
+                    TRelementHTML.innerHTML = `<td>${pagamento["documento"]}</td>\
+                    <td>${pagamento["favorecido"]}</td>\
+                    <td>${pagamento["data"]}</td>\
+                    <td>${pagamento["valor"]}</td>`
+                    tableBodyPagamentos.appendChild(TRelementHTML)
+                }
+            }
             document.getElementById("detalharItens").classList.remove('is-hidden');
             document.getElementById("tabelaEmpenho").classList.remove('is-hidden');
+            document.getElementById("tabelaPagamentos").classList.remove('is-hidden');
         }
         xhttp.open("POST", "/empenho");
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

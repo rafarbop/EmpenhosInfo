@@ -25,9 +25,9 @@ def empenho():
         <td>{dadosEmpenho["favorecido"]}</td>
         <td>{dadosEmpenho["cnpj"]}</td>
         <td>{dadosEmpenho["valor"]}</td>
-        <td></td>
     </tr><ARRAY>
-    {dadosEmpenho["listaItens"]}
+    {dadosEmpenho["listaItens"]}<ARRAY>
+    {dadosEmpenho["pagamentos"]}
     """
 
 
@@ -47,6 +47,8 @@ def consultarDiaAtualizado():
 
 def consultarEmpenho(ug, orgao, empenho):
     url = f'https://www.portaldatransparencia.gov.br/despesas/empenho/{ug}{orgao}{empenho}'
+    url_pagamentos = f'https://www.portaltransparencia.gov.br/despesas/documento/documentos-relacionados/resultado?paginacaoSimples=true&tamanhoPagina=15&offset=0&direcaoOrdenacao=asc&colunaOrdenacao=fase&colunasSelecionadas=data%2Cfase%2CdocumentoResumido%2Cespecie&fase=Empenho&codigo={ug}{orgao}{empenho}&_=1656178891541'
+
     r = requests.get(url)
     if r.status_code == 200:
         try:
@@ -56,14 +58,15 @@ def consultarEmpenho(ug, orgao, empenho):
             favorecidoEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-9 > span").text.strip()
             cnpjEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-3 > span > a").text.strip()
             listaItensEmpenho = pd.read_csv(f"https://www.portaltransparencia.gov.br/despesas/documento/empenho/detalhamento/baixar?direcaoOrdenacao=asc&codigo={ug}{orgao}{empenho}&totalDeRegistrosDaTabela=15",sep=";")
-            #listaDocumentosRelacionados
+            documentosRelacionados = get_pagamentos(url_pagamentos)
             cnpjEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-3 > span > a").text.strip()
             return {
                 "empenho": empenhoRetornado,
                 "valor": valorEmpenho,
                 "favorecido": favorecidoEmpenho,
                 "cnpj": cnpjEmpenho,
-                "listaItens": listaItensEmpenho.to_html(columns=['Item', 'Código subelemento', 'Subelemento', 'Valor atual'],justify='left', index=False)
+                "listaItens": listaItensEmpenho.to_html(columns=['Item', 'Código subelemento', 'Subelemento', 'Valor atual'],justify='left', index=False),
+                "pagamentos": documentosRelacionados
             }
         except Exception as erro:
             return {"erro": erro}
@@ -81,3 +84,30 @@ def consultarNotaSistema(ug, orgao, notaSistema):
             return {"erro": erro}
     else:
         return {"erro": r.status_code}
+
+def get_pagamentos(url):
+    import json
+
+    pagamentos = []
+    r = requests.get(url)
+    if r.status_code == 200:
+        try:
+            documentosRelacionados = json.loads(r.text)
+            if len(documentosRelacionados["data"]) > 0:
+                documentos = documentosRelacionados["data"]
+                for documento in documentos:
+                    if documento["fase"] == "Pagamento":
+                        pagamentos.append(
+                            {
+                                "documento": documento["documentoResumido"],
+                                "data": documento["data"],
+                                "favorecido": documento["favorecido"],
+                                "valor": documento["valor"]
+                            }
+                        )
+        except Exception as erro:
+            return {"erro": erro}
+    else:
+        return {"erro": r.status_code}
+
+    return pagamentos

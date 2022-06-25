@@ -96,6 +96,7 @@
         e.preventDefault()
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function() {
+            tableBodyPagamentos.innerHTML = ""
             response = this.responseText.split("<ARRAY>")
             document.getElementById("dadosEmpenhosConsultados").innerHTML = response[0];
             tableItens = response[1]

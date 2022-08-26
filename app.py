@@ -58,7 +58,7 @@ def consultarEmpenho(ug, orgao, empenho):
             favorecidoEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-9 > span").text.strip()
             cnpjEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-3 > span > a").text.strip()
             listaItensEmpenho = pd.read_csv(f"https://www.portaltransparencia.gov.br/despesas/documento/empenho/detalhamento/baixar?direcaoOrdenacao=asc&codigo={ug}{orgao}{empenho}&totalDeRegistrosDaTabela=15",sep=";")
-            documentosRelacionados = get_pagamentos(url_pagamentos)
+            documentosRelacionados = get_pagamentos(ug, orgao, url_pagamentos)
             cnpjEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-3 > span > a").text.strip()
             return {
                 "empenho": empenhoRetornado,
@@ -85,7 +85,21 @@ def consultarNotaSistema(ug, orgao, notaSistema):
     else:
         return {"erro": r.status_code}
 
-def get_pagamentos(url):
+def consultarDocumentoRelacionadoEmpenho(documento):
+    url = f'https://www.portaltransparencia.gov.br/despesas/pagamento/{documento}'
+    
+    r = requests.get(url)
+    if r.status_code == 200:
+        try:
+            soup = BeautifulSoup(r.text, "html.parser")
+            observacao = soup.soup.select_one("body > main > div:nth-child(3) > section.dados-tabelados > div:nth-child(5) > div > span").text.strip().capitalize()
+            return observacao
+        except Exception as erro:
+            return {"erro": erro}
+    else:
+        return {"erro": r.status_code}
+
+def get_pagamentos(ug, orgao, url):
     import json
     from datetime import datetime
 
@@ -99,11 +113,13 @@ def get_pagamentos(url):
                 for documento in documentos:
                     if documento["fase"] == "Pagamento":
                         # Chamar Função que verifique a descrição do documento para incluir na tabela final
+                        observacao = consultarDocumentoRelacionadoEmpenho(documento["documento"])
                         pagamentos.append(
                             {
-                                "documento": documento["documentoResumido"],
                                 "data": documento["data"],
+                                "documento": documento["documentoResumido"],
                                 "favorecido": documento["favorecido"],
+                                "observacao": observacao,
                                 "valor": documento["valor"]
                             }
                         )

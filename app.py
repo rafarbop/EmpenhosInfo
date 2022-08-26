@@ -47,7 +47,7 @@ def consultarDiaAtualizado():
 
 def consultarEmpenho(ug, orgao, empenho):
     url = f'https://www.portaldatransparencia.gov.br/despesas/empenho/{ug}{orgao}{empenho}'
-    url_pagamentos = f'https://www.portaltransparencia.gov.br/despesas/documento/documentos-relacionados/resultado?paginacaoSimples=true&tamanhoPagina=15&offset=0&direcaoOrdenacao=asc&colunaOrdenacao=fase&colunasSelecionadas=data%2Cfase%2CdocumentoResumido%2Cespecie&fase=Empenho&codigo={ug}{orgao}{empenho}&_=1656178891541'
+    url_pagamentos = f'https://www.portaltransparencia.gov.br/despesas/documento/documentos-relacionados/resultado?paginacaoSimples=true&tamanhoPagina=100&offset=0&direcaoOrdenacao=asc&colunaOrdenacao=fase&colunasSelecionadas=data%2Cfase%2CdocumentoResumido%2Cespecie&fase=Empenho&codigo={ug}{orgao}{empenho}&_=1656178891541'
 
     r = requests.get(url)
     if r.status_code == 200:

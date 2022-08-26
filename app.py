@@ -60,13 +60,16 @@ def consultarEmpenho(ug, orgao, empenho):
             listaItensEmpenho = pd.read_csv(f"https://www.portaltransparencia.gov.br/despesas/documento/empenho/detalhamento/baixar?direcaoOrdenacao=asc&codigo={ug}{orgao}{empenho}&totalDeRegistrosDaTabela=15",sep=";")
             documentosRelacionados = get_pagamentos(ug, orgao, url_pagamentos)
             cnpjEmpenho = soup.select_one("#collapse-1 > div > div > div.col-xs-12.col-sm-3 > span > a").text.strip()
+            valoresPagos = [float(x["valor"].replace('.','').replace(',','.')) for x in documentosRelacionados]
+            print(sum(valoresPagos))
             return {
                 "empenho": empenhoRetornado,
                 "valor": valorEmpenho,
                 "favorecido": favorecidoEmpenho,
                 "cnpj": cnpjEmpenho,
                 "listaItens": listaItensEmpenho.to_html(columns=['Item', 'Código subelemento', 'Subelemento', 'Valor atual'],justify='left', index=False),
-                "pagamentos": documentosRelacionados
+                "pagamentos": documentosRelacionados,
+                "totalPagamentos": sum(valoresPagos)
             }
         except Exception as erro:
             return {"erro": erro}
@@ -92,7 +95,7 @@ def consultarDocumentoRelacionadoEmpenho(documento):
     if r.status_code == 200:
         try:
             soup = BeautifulSoup(r.text, "html.parser")
-            observacao = soup.soup.select_one("body > main > div:nth-child(3) > section.dados-tabelados > div:nth-child(5) > div > span").text.strip().capitalize()
+            observacao = soup.select_one("body > main > div:nth-child(3) > section.dados-tabelados > div:nth-child(5) > div > span").text.strip().capitalize()
             return observacao
         except Exception as erro:
             return {"erro": erro}
@@ -104,6 +107,7 @@ def get_pagamentos(ug, orgao, url):
     from datetime import datetime
 
     pagamentos = []
+    soma_pagamentos = 0
     r = requests.get(url)
     if r.status_code == 200:
         try:
@@ -112,8 +116,9 @@ def get_pagamentos(ug, orgao, url):
                 documentos = documentosRelacionados["data"]
                 for documento in documentos:
                     if documento["fase"] == "Pagamento":
-                        # Chamar Função que verifique a descrição do documento para incluir na tabela final
                         observacao = consultarDocumentoRelacionadoEmpenho(documento["documento"])
+                        if isinstance(observacao, dict) and observacao.get('erro', False):
+                            observacao = str(observacao.get('erro'))
                         pagamentos.append(
                             {
                                 "data": documento["data"],

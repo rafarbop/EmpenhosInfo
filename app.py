@@ -98,6 +98,7 @@ def get_pagamentos(url):
                 documentos = documentosRelacionados["data"]
                 for documento in documentos:
                     if documento["fase"] == "Pagamento":
+                        # Chamar Função que verifique a descrição do documento para incluir na tabela final
                         pagamentos.append(
                             {
                                 "documento": documento["documentoResumido"],

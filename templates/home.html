@@ -53,6 +53,7 @@
                     </tr>
                     <tr class="has-background-info-dark">
                         <th class="has-text-white">Documento Pagamento - OB</th>
+                        <th class="has-text-white">Observações</th>
                         <th class="has-text-white">Favorecido do Pagamento</th>
                         <th class="has-text-white">Data</th>
                         <th class="has-text-white">Valor Pago</th>
@@ -113,6 +114,7 @@
                 for (var pagamento of listaPagamentos){
                     TRelementHTML = document.createElement('tr')
                     TRelementHTML.innerHTML = `<td>${pagamento["documento"]}</td>\
+                    <td>Aqui terá Detalhes do Pagamento - [Em Desenvolvimento]</td>\
                     <td>${pagamento["favorecido"]}</td>\
                     <td>${pagamento["data"]}</td>\
                     <td>${pagamento["valor"]}</td>`

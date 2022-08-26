@@ -49,13 +49,13 @@
             <table id="tabelaPagamentos" class="is-hidden table is-hoverable is-striped is-fullwidth">
                 <thead>
                     <tr class="has-background-info-dark">
-                        <th colspan="4" class="is-size-5 has-text-centered has-text-white">Pagamentos Relacionados ao Empenho Acima</th>
+                        <th colspan="5" class="is-size-5 has-text-centered has-text-white">Pagamentos Relacionados ao Empenho Acima</th>
                     </tr>
                     <tr class="has-background-info-dark">
-                        <th class="has-text-white">Documento Pagamento - OB</th>
-                        <th class="has-text-white">Observações</th>
-                        <th class="has-text-white">Favorecido do Pagamento</th>
                         <th class="has-text-white">Data</th>
+                        <th class="has-text-white">Documento</th>
+                        <th class="has-text-white">Favorecido</th>
+                        <th class="has-text-white">Observações</th>
                         <th class="has-text-white">Valor Pago</th>
                     </tr>
                 </thead>
@@ -113,10 +113,10 @@
             if (listaPagamentos){
                 for (var pagamento of listaPagamentos){
                     TRelementHTML = document.createElement('tr')
-                    TRelementHTML.innerHTML = `<td>${pagamento["documento"]}</td>\
-                    <td>Aqui terá Detalhes do Pagamento - [Em Desenvolvimento]</td>\
+                    TRelementHTML.innerHTML = `<td>${pagamento["data"]}</td>\
+                    <td>${pagamento["documento"]}</td>\
                     <td>${pagamento["favorecido"]}</td>\
-                    <td>${pagamento["data"]}</td>\
+                    <td>Aqui terá Detalhes do Pagamento - [Em Desenvolvimento]</td>\
                     <td>${pagamento["valor"]}</td>`
                     tableBodyPagamentos.appendChild(TRelementHTML)
                 }

@@ -87,6 +87,7 @@ def consultarNotaSistema(ug, orgao, notaSistema):
 
 def get_pagamentos(url):
     import json
+    from datetime import datetime
 
     pagamentos = []
     r = requests.get(url)
@@ -110,4 +111,9 @@ def get_pagamentos(url):
     else:
         return {"erro": r.status_code}
 
-    return pagamentos
+    pagamento_ordernado_data = sorted(
+        pagamentos,
+        key=lambda x: datetime.strptime(x["data"], '%d/%m/%Y')
+        )
+
+    return pagamento_ordernado_data

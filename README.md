@@ -8,7 +8,7 @@ Os dados são pesquisados dinâmicamente direto do portal da transparência e mo
 
 ## Acesso
 Link de acesso a aplicação:
-> [empenhos-info.rafabruno.work](empenhos-info.rafabruno.work)
+> [http://empenhos-info.rafabruno.work](http://empenhos-info.rafabruno.work)
 
 OBS: Hospedados no Heroku
 

@@ -4,7 +4,7 @@
         <section class="section">
             <form id="form_dados_empenho" class="box">
                 <div class="field has-text-centered">
-                    <a class="button is-info is-small is-outlined is-rounded" href="http://consulta.tesouro.fazenda.gov.br/ug_novosite/consulta_ug.asp"></a>
+                    <a class="button is-info is-small is-outlined is-rounded" target="_blank" href="http://consulta.tesouro.fazenda.gov.br/ug_novosite/index_ug.asp">Pesquisar Código UG e Código Órgão</a>
                 </div>
                 <div class="columns is-multiline">
                     <div class="column is-half-desktop">
@@ -25,6 +25,15 @@
                     <input id="pesquisarEmpenho" type="submit" class="button is-info" value="Pesquisar Empenho">
                 </div>
             </form>
+        </section>
+        <section id="loading-empenho" class="section is-hidden">
+            <div class="columns is-centered">
+                <p class="column is-half has-text-centered">
+                    <span class="is-size-3 icon-loading">&#x21bb;</span>
+                    <br>
+                    Processando
+                </p>
+            </div>
         </section>
         <section class="section pt-0">
             <table id="tabelaEmpenho" class="is-hidden table is-hoverable is-striped is-fullwidth">
@@ -97,6 +106,7 @@
 
 <script>
     document.getElementById("form_dados_empenho").onsubmit = (e) => {
+        document.getElementById("loading-empenho").classList.remove('is-hidden');
         e.preventDefault()
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function() {
@@ -124,6 +134,7 @@
                     tableBodyPagamentos.appendChild(TRelementHTML)
                 }
             }
+            document.getElementById("loading-empenho").classList.add('is-hidden');
             document.getElementById("detalharItens").classList.remove('is-hidden');
             document.getElementById("tabelaEmpenho").classList.remove('is-hidden');
             document.getElementById("tabelaPagamentos").classList.remove('is-hidden');

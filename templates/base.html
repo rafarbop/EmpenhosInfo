@@ -7,6 +7,22 @@
     {% block title %}
     <title>Informações de Empenho</title>
     {% endblock title %}
+    <style>
+        .icon-loading {
+            display: inline-block;
+            animation-name: spin;
+            animation-duration: 2000ms;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+          }
+        @keyframes spin { 
+            from { 
+                transform: rotate(0deg); 
+            } to { 
+                transform: rotate(360deg); 
+            }
+        }
+    </style>
 </head>
 <body class="has-background-info-light">
     <header class="has-background-info-dark has-text-white py-4 has-text-centered">
